@@ -1,0 +1,13 @@
+---
+- name: Generate OpenSearch CA certificate
+  ansible.builtin.import_tasks: ca.yml
+  run_once: true
+
+- name: Generate OpenSearch node certificates
+  ansible.builtin.import_tasks: node.yml
+  run_once: true
+
+# - name: Generate client certificates
+#   ansible.builtin.import_tasks: clients.yml
+#   run_once: true
+#   delegate_to: localhost

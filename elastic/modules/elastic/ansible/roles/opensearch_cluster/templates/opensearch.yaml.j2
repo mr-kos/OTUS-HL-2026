@@ -1,0 +1,43 @@
+cluster.name: {{ cluster_name }}
+node.name: {{ inventory_hostname }}
+
+node.roles:
+{% for role in node_roles %}
+  - {{ role }}
+{% endfor %}
+
+network.host: {{ network.host }}
+http.port: {{ network.http_port }}
+transport.port: {{ network.transport_port }}
+
+discovery.seed_hosts:
+{% for host in groups['opensearch'] %}
+{% if hostvars[host].is_seed is defined and hostvars[host].is_seed %}
+  - "{{ hostvars[host].ansible_host }}"
+{% endif %}
+{% endfor %}
+
+cluster.initial_cluster_manager_nodes:
+{% for host in groups['opensearch'] %}
+  - "{{ host }}"
+{% endfor %}
+{% endif %}
+
+# Security
+plugins.security.disabled: false
+
+plugins.security.ssl.transport.enforce_hostname_verification: false
+plugins.security.ssl.transport.resolve_hostname: false
+plugins.security.ssl.transport.pemcert_filepath: {{ certs.node_cert.dest }}
+plugins.security.ssl.transport.pemkey_filepath: {{ keys.node_cert_key.dest }}
+plugins.security.ssl.transport.pemtrustedcas_filepath: {{ certs.root_ca_cert.dest }}
+
+plugins.security.ssl.http.enabled: true
+plugins.security.ssl.http.pemcert_filepath: {{ certs.node_cert.dest }}
+plugins.security.ssl.http.pemkey_filepath: {{ keys.node_cert_key.dest }}
+plugins.security.ssl.http.pemtrustedcas_filepath: {{ certs.root_ca_cert.dest }}
+
+plugins.security.nodes_dn:
+{% for host in groups['opensearch'] %}
+  - "CN={{ host }}"
+{% endfor %}

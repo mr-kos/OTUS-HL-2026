@@ -1,0 +1,62 @@
+---
+- name: Nodes keys and csr generation
+  loop: "{{ groups['opensearch'] }}"
+  block:
+
+    - name: Create certificate directory
+      file:
+        path: '{{ certs.certs_dir.dest }}'
+        state: directory
+        owner: '{{ certs.certs_dir.owner }}'
+        group: '{{ certs.certs_dir.group }}'
+        mode: '{{ certs.certs_dir.mode }}'
+
+    - name: Generate node private keys
+      community.crypto.openssl_privatekey:
+        path: "{{ keys.node_cert_key.dest }}"
+        type: "{{ keys.node_cert_key.type }}"
+        size: "{{ keys.node_cert_key.size }}"
+        mode: "{{ keys.node_cert_key.mode }}"
+
+    - name: Generate node CSRs
+      community.crypto.openssl_csr:
+        path: "{{ csr.node_cert_csr.dest }}"
+        privatekey_path: "{{ keys.node_cert_key.dest }}"
+        common_name: "{{ item }}"
+        subject_alt_name:
+          - "DNS:{{ item }}"
+          - "IP:{{ hostvars[item].opensearch_node_ip }}"
+        key_usage:
+          - digitalSignature
+          - keyEncipherment
+        extended_key_usage:
+          - serverAuth
+          - clientAuth
+
+- name: Issuing certs and transfering them to nodes
+  loop: "{{ groups['opensearch'] }}"
+  block:
+
+    - name: Fetch node CSR
+      fetch:
+        src: "{{ csr.node_cert_csr.dest }}"
+        dest: "{{ certs.certs_dir.controller }}/{{ inventory_hostname }}.csr"
+        flat: true
+
+    - name: Sign node certificate
+      community.crypto.x509_certificate:
+        path: "{{ certs.certs_dir.controller }}/{{ inventory_hostname }}.pem"
+        csr_path: "{{ certs.certs_dir.controller }}/{{ inventory_hostname }}.csr"
+        ownca_path: "{{ certs.root_ca_cert.controller }}"
+        ownca_privatekey_path: "{{ keys.root_ca_key.controller }}"
+        provider: ownca
+        ownca_not_after: "+{{ certs.node_cert.valid_for_days }}d"
+      delegate_to: localhost
+
+    - name: Deploy signed node certificate
+      copy:
+        src: "{{ certs.certs_dir.controller }}/{{ inventory_hostname }}.pem"
+        dest: "{{ certs.node_cert.dest }}"
+        owner: "{{ certs.node_cert.owner }}"
+        group: "{{ certs.node_cert.group }}"
+        mode: "{{ certs.node_cert.mode }}"

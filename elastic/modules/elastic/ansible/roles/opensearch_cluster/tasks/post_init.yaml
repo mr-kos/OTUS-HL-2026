@@ -1,0 +1,24 @@
+---
+- name: Read configuration
+  ansible.builtin.slurp:
+    src: '{{ opensearch_config.dest }}'
+  register: config_file
+
+- name: Parse configuration
+  ansible.builtin.set_fact:
+    config: "{{ config_file.content | b64decode | from_yaml }}"
+
+- name: Remove initialization variable
+  ansible.builtin.set_fact:
+    config: |
+          {% set _ = config.pop('cluster.initial_cluster_manager_nodes', None) %}
+          {{ config }}
+
+- name: Write configuration back
+  ansible.builtin.copy:
+    dest: '{{ opensearch_config.dest }}'
+    content: "{{ config | to_nice_yaml }}"
+    owner: '{{ opensearch_config.owner }}'
+    group: '{{ opensearch_config.group }}'
+    mode: '{{ opensearch_config.mode }}'
+  notify: Restart OpenSearch

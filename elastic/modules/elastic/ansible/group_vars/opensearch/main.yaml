@@ -1,0 +1,37 @@
+certs_remote_directory: /etc/opensearch/certs
+certs_local_directory: "{{ playbook_dir }}/pki"
+
+certs:
+  certs_dir:
+    controller: "{{ certs_local_directory }}"
+    dest: "{{ certs_remote_directory }}"
+    owner: opensearch
+    group: opensearch
+    mode: "0750"
+  root_ca_cert:
+    controller: "{{ certs_local_directory }}/root-ca.pem"
+    dest: "{{ certs_remote_directory }}/root-ca.pem"
+    valid_for_days: 3650
+    owner: opensearch
+    group: opensearch
+    mode: "0644"
+  node_cert:
+    dest: "{{ certs_remote_directory }}/node.pem"
+    valid_for_days: 825
+    owner: opensearch
+    group: opensearch
+    mode: "0644"
+
+keys:
+  root_ca_key:
+    controller: "{{ certs_local_directory }}/root-ca.key"
+    type: RSA
+    size: 4096
+    mode: "0644"
+  node_cert_key:
+    dest: "{{ certs_remote_directory }}/node.key"
+    type: RSA
+    size: 4096
+    owner: opensearch
+    group: opensearch
+    mode: "0600"

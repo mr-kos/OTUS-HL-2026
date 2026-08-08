@@ -1,31 +1,32 @@
 locals {
-  vm_names = [for i in range(var.nodes_count) :
-    "${var.prefix}-${i}"
-  ]
+  nodes = {
+    for i in range(var.nodes_count) : "${var.prefix}-${i}" => {
+      ip = "${cidrhost(var.subnet_cidr, var.base_ip_offset + i)}/${split("/", var.subnet_cidr)[1]}"
+      user = var.username
+      password = var.password
+      default_tags = [var.role, "opentofu"]
+    }
+  }
+}
 
-  vm_ips = [for i in range(var.nodes_count) :
-    "${cidrhost(var.subnet_cidr, var.base_ip_offset + i)}/${split("/", var.subnet_cidr)[1]}"
-  ]
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/ansible/inventory.yaml"
 
-  # nodes_overrides = {
-  #   cpu     = 4
-  #   mem_mb  = 4096
-  #   disk_gb = 20
-  # }
-
-  default_tags = [var.role, "opentofu"]
+  content = templatefile("${path.module}/inventory.tpl", {
+    cluster_nodes = local.nodes
+  })
 }
 
 module "nodes_creation" {
   source = "../base"
-  count  = var.nodes_count
+  for_each  = local.nodes
 
-  vm_name = local.vm_names[count.index]
+  vm_name = each.key
   cpu     = var.cpu
   mem_mb  = var.mem_mb
 
-  ip_address = var.cloud_init_enabled ? local.vm_ips[count.index] : null
-  username   = var.username
-  password   = var.password
-  tags       = local.default_tags
+  ip_address = var.cloud_init_enabled ? each.value.ip : null
+  username   = each.value.user
+  password   = each.value.password
+  tags       = each.value.default_tags
 }

@@ -1,0 +1,6 @@
+csr:
+  root_ca_csr:
+    controller: "{{ certs_local_directory }}/root-ca.csr"
+    common_name: "OpenSearch Root CA"
+  node_cert_csr:
+    dest: "{{ certs_remote_directory }}/node.csr"

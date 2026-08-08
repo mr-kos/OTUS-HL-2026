@@ -1,0 +1,59 @@
+---
+- name: Generating CA cert
+  delegate_to: localhost
+  block:
+    - name: Create local CA directory
+      file:
+        path: "{{ certs.certs_dir.controller }}"
+        state: directory
+        mode: "{{ certs.certs_dir.mode }}"
+      run_once: true
+
+    - name: Generate CA private key
+      community.crypto.openssl_privatekey:
+        path: "{{ keys.root_ca_key.controller }}"
+        type: "{{ keys.root_ca_key.type }}"
+        size: "{{ keys.root_ca_key.size }}"
+        mode: "{{ keys.root_ca_key.mode }}"
+      run_once: true
+
+    - name: Generate CA CSR
+      community.crypto.openssl_csr:
+        path: "{{ csr.root_ca_csr.controller }}"
+        privatekey_path: "{{ keys.root_ca_key.controller }}"
+        common_name: "{{ csr.root_ca_csr.common_name }}"
+        basic_constraints:
+          - "CA:TRUE"
+        basic_constraints_critical: true
+        key_usage:
+          - keyCertSign
+          - cRLSign
+        key_usage_critical: true
+      run_once: true
+
+    - name: Generate self-signed CA certificate
+      community.crypto.x509_certificate:
+        path: "{{ certs.root_ca_cert.controller }}"
+        csr_path: "{{ csr.root_ca_csr.controller }}"
+        privatekey_path: "{{ keys.root_ca_key.controller }}"
+        provider: selfsigned
+        selfsigned_not_after: "+{{ certs.root_ca_cert.valid_for_days }}d"
+      run_once: true
+
+- name: Transfer CA cert to nodes
+  block:
+    - name: Create certificate directory
+      file:
+        path: '{{ certs.certs_dir.dest }}'
+        state: directory
+        owner: '{{ certs.certs_dir.owner }}'
+        group: '{{ certs.certs_dir.group }}'
+        mode: '{{ certs.certs_dir.mode }}'
+    - name: Transfer CA cert
+      copy:
+        src: "{{ certs.root_ca_cert.controller }}"
+        dest: "{{ certs.root_ca_cert.dest }}"
+        owner: "{{ certs.root_ca_cert.owner }}"
+        group: "{{ certs.root_ca_cert.group }}"
+        mode: "{{ certs.root_ca_cert.mode }}"
+  become: true

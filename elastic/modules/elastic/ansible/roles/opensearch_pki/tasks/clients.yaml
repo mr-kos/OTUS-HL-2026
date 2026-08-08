@@ -1,0 +1,62 @@
+# ---
+# - name: Generate Logstash certificate
+#   when: pki_generate_logstash_certificate
+#   block:
+
+#     - name: Generate Logstash private key
+#       community.crypto.openssl_privatekey:
+#         path: "{{ pki_clients_dir }}/logstash.key"
+#         type: RSA
+#         size: "{{ pki_client_key_size }}"
+#         mode: "0600"
+
+#     - name: Generate Logstash CSR
+#       community.crypto.openssl_csr:
+#         path: "{{ pki_clients_dir }}/logstash.csr"
+#         privatekey_path: "{{ pki_clients_dir }}/logstash.key"
+#         common_name: "logstash"
+#         key_usage:
+#           - digitalSignature
+#           - keyEncipherment
+#         extended_key_usage:
+#           - clientAuth
+
+#     - name: Sign Logstash certificate
+#       community.crypto.x509_certificate:
+#         path: "{{ pki_clients_dir }}/logstash.pem"
+#         csr_path: "{{ pki_clients_dir }}/logstash.csr"
+#         ownca_path: "{{ pki_ca_dir }}/root-ca.pem"
+#         ownca_privatekey_path: "{{ pki_ca_dir }}/root-ca.key"
+#         provider: ownca
+#         ownca_not_after: "+{{ pki_client_validity_days }}d"
+
+# - name: Generate Dashboards certificate
+#   when: pki_generate_dashboards_certificate
+#   block:
+
+#     - name: Generate Dashboards private key
+#       community.crypto.openssl_privatekey:
+#         path: "{{ pki_clients_dir }}/dashboards.key"
+#         type: RSA
+#         size: "{{ pki_client_key_size }}"
+#         mode: "0600"
+
+#     - name: Generate Dashboards CSR
+#       community.crypto.openssl_csr:
+#         path: "{{ pki_clients_dir }}/dashboards.csr"
+#         privatekey_path: "{{ pki_clients_dir }}/dashboards.key"
+#         common_name: "opensearch-dashboards"
+#         key_usage:
+#           - digitalSignature
+#           - keyEncipherment
+#         extended_key_usage:
+#           - clientAuth
+
+#     - name: Sign Dashboards certificate
+#       community.crypto.x509_certificate:
+#         path: "{{ pki_clients_dir }}/dashboards.pem"
+#         csr_path: "{{ pki_clients_dir }}/dashboards.csr"
+#         ownca_path: "{{ pki_ca_dir }}/root-ca.pem"
+#         ownca_privatekey_path: "{{ pki_ca_dir }}/root-ca.key"
+#         provider: ownca
+#         ownca_not_after: "+{{ pki_client_validity_days }}d"

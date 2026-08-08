@@ -46,12 +46,6 @@ variable "base_ip_offset" {
   default     = 100
 }
 
-variable "additional_tags" {
-  description = "Additional tags to merge with defaults"
-  type        = map(string)
-  default     = {}
-}
-
 variable "cloud_init_enabled" {
   description = "Enable cloud-init configuration"
   type        = bool
@@ -71,15 +65,3 @@ variable "password" {
   sensitive   = true
   default     = null
 }
-
-# variable "shards_count" {
-#   description = "Shards of indeces"
-#   type        = number
-#   default     = 3
-# }
-
-# variable "replication_factor" {
-#   description = "Replicas per shard"
-#   type        = number
-#   default     = 1
-# }

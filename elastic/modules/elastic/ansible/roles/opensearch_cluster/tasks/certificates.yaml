@@ -1,0 +1,32 @@
+# ---
+# - name: Create certificate directory
+#   file:
+#     path: '{{ certs.certs_dir.dest }}'
+#     state: directory
+#     owner: '{{ certs.certs_dir.owner }}'
+#     group: '{{ certs.certs_dir.group }}'
+#     mode: '{{ certs.certs_dir.mode }}'
+
+# - name: Install common CA
+#   copy:
+#     src: '{{ certificates.root_ca_cert.src }}'
+#     dest: '{{ certificates.root_ca_cert.dest }}'
+#     owner: '{{ certificates.root_ca_cert.owner }}'
+#     group: '{{ certificates.root_ca_cert.group }}'
+#     mode: '{{ certificates.root_ca_cert.mode }}'
+
+# - name: Install node certificate
+#   copy:
+#     src: '{{ certificates.node_cert.src }}'
+#     dest: '{{ certificates.node_cert.dest }}'
+#     owner: '{{ certificates.node_cert.owner }}'
+#     group: '{{ certificates.node_cert.group }}'
+#     mode: '{{ certificates.node_cert.mode }}'
+
+# - name: Install node private key
+#   copy:
+#     src: '{{ certificates.node_cert_key.src }}'
+#     dest: '{{ certificates.node_cert_key.dest }}'
+#     owner: '{{ certificates.node_cert_key.owner }}'
+#     group: '{{ certificates.node_cert_key.group }}'
+#     mode: '{{ certificates.node_cert_key.mode }}'

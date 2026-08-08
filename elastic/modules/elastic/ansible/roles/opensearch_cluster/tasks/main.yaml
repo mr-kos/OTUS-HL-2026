@@ -1,0 +1,17 @@
+---
+- name: Install OpenSearch
+  become: true
+  import_tasks: installation.yaml
+
+- name: Configure OpenSearch
+  become: true
+  import_tasks: configuration.yaml
+
+- name: Manage OpenSearch service
+  become: true
+  import_tasks: service.yaml
+
+- name: Post-initialization routine
+  become: true
+  import_tasks: post_init.yaml
+  when: opensearch_initialization

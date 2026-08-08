@@ -1,0 +1,5 @@
+---
+- name: Restart OpenSearch
+  systemd:
+    name: opensearch
+    state: restarted

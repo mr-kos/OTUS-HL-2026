@@ -1,0 +1,24 @@
+---
+- name: Generate PKI for OpenSearch cluster
+  hosts: opensearch
+  become: true
+  roles:
+    - opensearch_pki
+
+- name: Configure OpenSearch cluster
+  hosts: opensearch
+  become: true
+  roles:
+    - opensearch
+
+# - name: Configure Logstash
+#   hosts: logstash
+#   become: true
+#   roles:
+#     - logstash
+
+# - name: Configure OpenSearch Dashboards
+#   hosts: dashboards
+#   become: true
+#   roles:
+#     - opensearch_dashboards

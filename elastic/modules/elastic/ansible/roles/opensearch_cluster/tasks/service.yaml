@@ -1,0 +1,7 @@
+---
+- name: Enable and start OpenSearch
+  become: true
+  systemd:
+    name: opensearch
+    enabled: yes
+    state: started

@@ -1,0 +1,25 @@
+---
+- name: Configure vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: "262144"
+    state: present
+    reload: true
+
+- name: Configure JVM heap
+  copy:
+    dest: /etc/opensearch/jvm.options.d/heap.options
+    content: |
+      -Xms{{ opensearch_heap_size }}
+      -Xmx{{ opensearch_heap_size }}
+    owner: root
+    group: opensearch
+    mode: "0644"
+
+- name: Deploy opensearch configuration
+  ansible.builtin.template:
+    src: '{{ opensearch_config.template }}'
+    dest: '{{ opensearch_config.dest }}'
+    owner: '{{ opensearch_config.owner }}'
+    group: '{{ opensearch_config.group }}'
+    mode: '{{ opensearch_config.mode }}'
